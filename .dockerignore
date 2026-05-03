@@ -1,2 +1,32 @@
-# hevy-mcp no longer publishes Docker images.
-# This file remains only to document the deprecation and prevent accidental builds.
+# Exclude noise from the build context
+.git
+.gitignore
+.github
+.idea
+.cursor
+.cm
+.vscode
+node_modules
+dist
+coverage
+tests
+docs
+scripts
+openapi-spec.json
+.env
+.env.sample
+.nvmrc
+.npmrc
+.oxlintrc.json
+.oxfmtrc.json
+lefthook.yml
+mise.toml
+commitlint.config.js
+codecov.yml
+kubb.config.ts
+vitest.config.ts
+.releaserc.json
+*.md
+!README.md
+Dockerfile
+.dockerignore

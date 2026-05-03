@@ -150,18 +150,33 @@ HEVY_API_KEY=your_hevy_api_key_here
 
 ---
 
-<details>
-<summary><strong>⚠️ Deprecation Notices (HTTP/SSE & Docker)</strong></summary>
+## 🐳 Running behind an MCP gateway (supergateway contract)
 
-### Stdio Only
+The MCP server itself speaks **stdio only**. For multi-tenant gateway
+deployments (e.g. [mcp-gateway-poc](https://github.com/rwestergren/mcp-gateway-poc)),
+this repo ships a `Dockerfile` that wraps the stdio binary with
+[supergateway](https://github.com/supercorp-ai/supergateway) so a single
+container exposes MCP streamable-HTTP.
 
-As of version **1.18.0**, `hevy-mcp` only supports **stdio** transport. HTTP/SSE transport has been completely removed to simplify the codebase and focus on the native MCP experience.
+The image follows the same contract every gateway-hosted MCP uses:
 
-### Docker
+- MCP streamable-HTTP on `0.0.0.0:$PORT` at `/mcp`
+- Health endpoint at `/healthz`
+- Stateful sessions (`Mcp-Session-Id` honored)
+- `HEVY_API_KEY` is read from the container environment and passed to the
+  spawned stdio child
 
-Docker-based workflows are retired. The provided `Dockerfile` now exits with a message pointing to the stdio-native experience. Legacy GHCR images are no longer updated.
+Images are published to `ghcr.io/rwestergren/hevy-mcp` from `main` and from
+any manually cut GitHub release. Build locally with:
 
-</details>
+```bash
+docker build -t hevy-mcp:local .
+docker run --rm -e HEVY_API_KEY=sk_live_... -p 8080:8080 hevy-mcp:local
+curl http://localhost:8080/healthz
+```
+
+End users running `hevy-mcp` directly should use the stdio/`npx` flow above;
+the Docker image is aimed at gateway operators, not individual clients.
 
 ---
 
