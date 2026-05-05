@@ -31,6 +31,12 @@ RUN npm ci --include=dev \
 # -----------------------------------------------------------------------------
 FROM node:24-alpine
 
+# MCP Registry ownership attestation. The registry refuses to publish an
+# OCI package entry unless the image carries this label with a value that
+# matches the server.json `name` field, proving that whoever pushed the
+# image also controls the registry namespace.
+LABEL io.modelcontextprotocol.server.name="io.github.rwestergren/hevy-mcp-remote"
+
 ARG SUPERGATEWAY_VERSION
 
 ENV NODE_ENV=production \
