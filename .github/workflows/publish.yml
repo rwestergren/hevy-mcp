@@ -1,0 +1,54 @@
+name: Publish to MCP Registry
+
+# Publishes server.json to the MCP Registry whenever a GitHub release is cut
+# (or manually via workflow_dispatch). Uses GitHub OIDC for auth, so no
+# secrets are required; the registry's github-oidc provider verifies the
+# commit signer's ownership of rwestergren/hevy-mcp.
+#
+# The version in server.json (both top-level and packages[].version) is
+# auto-synced to the release tag so a single source of truth -- the git
+# tag -- drives the registry entry version.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: mcp-registry-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync server.json version to release tag
+        if: github.event_name == 'release'
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          jq --arg v "$VERSION" '.version = $v | .packages[0].version = $v' server.json > server.tmp
+          mv server.tmp server.json
+          echo "Synced server.json to version ${VERSION}"
+          jq '{name, version, "package.version": .packages[0].version}' server.json
+
+      - name: Install mcp-publisher
+        run: |
+          set -euo pipefail
+          OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+          ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_${OS}_${ARCH}.tar.gz" \
+            | tar xz mcp-publisher
+          ./mcp-publisher --version || true
+
+      - name: Authenticate to MCP Registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish to MCP Registry
+        run: ./mcp-publisher publish

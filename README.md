@@ -1,11 +1,12 @@
-# hevy-mcp: Model Context Protocol Server for Hevy Fitness API
+# hevy-mcp-remote: Hosted / gateway-ready MCP for Hevy Fitness
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Build and Test](https://github.com/chrisdoc/hevy-mcp/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/chrisdoc/hevy-mcp/actions/workflows/build-and-test.yml)
-[![Codecov](https://codecov.io/gh/chrisdoc/hevy-mcp/branch/main/graph/badge.svg)](https://codecov.io/gh/chrisdoc/hevy-mcp)
-[![npm version](https://img.shields.io/npm/v/hevy-mcp.svg)](https://www.npmjs.com/package/hevy-mcp)
+[![Build Docker image](https://github.com/rwestergren/hevy-mcp/actions/workflows/docker.yml/badge.svg)](https://github.com/rwestergren/hevy-mcp/actions/workflows/docker.yml)
+[![ghcr.io](https://img.shields.io/badge/ghcr.io-rwestergren%2Fhevy--mcp-blue)](https://github.com/rwestergren/hevy-mcp/pkgs/container/hevy-mcp)
 
-A Model Context Protocol (MCP) server implementation that interfaces with the [Hevy fitness tracking app](https://www.hevyapp.com/) and its [API](https://api.hevyapp.com/docs/). This server enables AI assistants like **Claude Desktop** and **Cursor** to access and manage workout data, routines, and exercise templates through the Hevy API (requires PRO subscription).
+> **Fork notice.** This is an independently-maintained fork of [`chrisdoc/hevy-mcp`](https://github.com/chrisdoc/hevy-mcp), repackaged for multi-tenant MCP gateways. It ships the same Hevy tools wrapped in [supergateway](https://github.com/supercorp-ai/supergateway) as an OCI image that speaks MCP streamable-HTTP over HTTP, instead of stdio. Use the upstream `hevy-mcp` npm package for local/stdio use in Claude Desktop, Cursor, etc.
+
+A Model Context Protocol (MCP) server for the [Hevy fitness tracking app](https://www.hevyapp.com/), packaged as a supergateway-wrapped OCI image for hosting behind an MCP gateway. Exposes MCP streamable-HTTP on `/mcp` and health on `/healthz`; reads `HEVY_API_KEY` from the container environment.
 
 ---
 

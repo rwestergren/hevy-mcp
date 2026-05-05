@@ -1,0 +1,53 @@
+{
+	"$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+	"name": "io.github.rwestergren/hevy-mcp-remote",
+	"title": "Hevy MCP (Remote)",
+	"description": "Hosted/gateway-ready Hevy fitness MCP: workouts, routines, templates.",
+	"repository": {
+		"url": "https://github.com/rwestergren/hevy-mcp",
+		"source": "github",
+		"id": "1228015582"
+	},
+	"websiteUrl": "https://github.com/rwestergren/hevy-mcp",
+	"version": "0.1.0",
+	"packages": [
+		{
+			"registryType": "oci",
+			"registryBaseUrl": "https://ghcr.io",
+			"identifier": "ghcr.io/rwestergren/hevy-mcp",
+			"version": "0.1.0",
+			"transport": {
+				"type": "streamable-http",
+				"url": "http://localhost:{port}/mcp"
+			},
+			"runtimeHint": "docker",
+			"runtimeArguments": [
+				{
+					"type": "named",
+					"name": "-p",
+					"value": "{port}:8080",
+					"variables": {
+						"port": {
+							"description": "Host port to publish the MCP container on.",
+							"default": "8080",
+							"format": "number"
+						}
+					}
+				},
+				{
+					"type": "named",
+					"name": "-e",
+					"value": "HEVY_API_KEY={hevy_api_key}"
+				}
+			],
+			"environmentVariables": [
+				{
+					"name": "HEVY_API_KEY",
+					"description": "Hevy API key (requires Hevy PRO). Get one in the Hevy app under Settings -> Developer.",
+					"isRequired": true,
+					"isSecret": true
+				}
+			]
+		}
+	]
+}
