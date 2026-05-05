@@ -14,7 +14,6 @@
 		{
 			"registryType": "oci",
 			"identifier": "ghcr.io/rwestergren/hevy-mcp:0.1.0",
-			"version": "0.1.0",
 			"transport": {
 				"type": "streamable-http",
 				"url": "http://localhost:8080/mcp"
