@@ -49,6 +49,36 @@ jobs:
           echo "Synced server.json to version ${VERSION}"
           jq '{name, version, "package.identifier": .packages[0].identifier}' server.json
 
+      - name: Wait for GHCR image tag to exist
+        # The docker.yml workflow runs in parallel on `release: published`
+        # and takes ~60-90s to build and push multi-arch images. The MCP
+        # Registry validator refuses to publish if the referenced OCI tag
+        # doesn't exist yet, so poll GHCR for the tag before publishing.
+        run: |
+          set -euo pipefail
+          IMAGE=$(jq -r '.packages[0].identifier' server.json)
+          REPO="${IMAGE%:*}"
+          TAG="${IMAGE##*:}"
+          # Strip ghcr.io/ prefix to get owner/image for the manifest API
+          OWNER_IMAGE="${REPO#ghcr.io/}"
+          # GHCR requires a bearer token for manifest queries even on
+          # public images. Fetch an anonymous token scoped to pull.
+          TOKEN=$(curl -s "https://ghcr.io/token?scope=repository:${OWNER_IMAGE}:pull" | jq -r .token)
+          for i in $(seq 1 60); do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' \
+              -H "Authorization: Bearer ${TOKEN}" \
+              -H "Accept: application/vnd.oci.image.index.v1+json" \
+              "https://ghcr.io/v2/${OWNER_IMAGE}/manifests/${TAG}")
+            if [ "$CODE" = "200" ]; then
+              echo "Tag ${IMAGE} is present on GHCR (attempt $i)."
+              exit 0
+            fi
+            echo "Attempt $i: manifest for ${IMAGE} returned ${CODE}; waiting 10s..."
+            sleep 10
+          done
+          echo "Timed out waiting for ${IMAGE} to appear on GHCR." >&2
+          exit 1
+
       - name: Install mcp-publisher
         run: |
           set -euo pipefail
