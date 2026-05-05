@@ -18,26 +18,19 @@
 			"version": "0.1.0",
 			"transport": {
 				"type": "streamable-http",
-				"url": "http://localhost:{port}/mcp"
+				"url": "http://localhost:8080/mcp"
 			},
 			"runtimeHint": "docker",
 			"runtimeArguments": [
 				{
 					"type": "named",
 					"name": "-p",
-					"value": "{port}:8080",
-					"variables": {
-						"port": {
-							"description": "Host port to publish the MCP container on.",
-							"default": "8080",
-							"format": "number"
-						}
-					}
+					"value": "8080:8080"
 				},
 				{
 					"type": "named",
 					"name": "-e",
-					"value": "HEVY_API_KEY={hevy_api_key}"
+					"value": "HEVY_API_KEY={HEVY_API_KEY}"
 				}
 			],
 			"environmentVariables": [
